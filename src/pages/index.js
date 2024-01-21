@@ -9,8 +9,35 @@ import { fab, faHtml5, faJs, faReact, faCss3, faGalacticSenate } from
 import { faHeart, faCode, faGem, fas } from '@fortawesome/free-solid-svg-icons';
 import Layout from "../components/layout";
 library.add(faHeart, faCode, faGem, fas, fab);
+import { navigate } from "gatsby";
 
-export default () => (
+const encode = (data) => {
+  return Object.keys(data)
+  .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[
+ key]))
+  .join("&");
+ }
+ class IndexPage extends Component {
+  constructor(props) {
+  super(props)
+  this.state = { name: "", email: "", message: "" };
+  }
+  handleSubmit = e => {
+  e.preventDefault();
+  const form = e.target
+  fetch("/", {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: encode({ 'form-name': form.getAttribute('name'), 
+ ...this.state })
+  })
+  .then(() => navigate(form.getAttribute('action')))
+  .catch(error => alert(error));
+  };
+  handleChange = e => this.setState({ [e.target.name]: e.target.value });
+  render() {
+    const { name, email, message } = this.state;
+     return (
   <Layout>
   <div style={{position: 'relative'}}>
     <Banner></Banner>
@@ -170,10 +197,15 @@ and apps
 <form name="contact" method="post" data-netlify="true">
 <div className="fields">
  <GenericH2 none>Contact Us</GenericH2>
- <input type="text" name="name" id="name" placeholder="Name" />
- <input type="email" name="email" id="email" placeholder="Email" />
- <textarea name="message" id="message" placeholder="Message" rows="7">
-</textarea>
+ <input type="text" name="name" id="name" 
+placeholder="Name" value={name} onChange={this.
+handleChange} />
+ <input type="email" name="email" id="email" 
+placeholder="Email" value={email} onChange={this.
+handleChange} />
+ <textarea name="message" id="message" 
+placeholder="Message" rows="7" value={message} 
+onChange={this.handleChange}></textarea>
  <div className="actions">
  <input type="submit" value="Send Message" className="button_primary" />
  </div>
@@ -183,3 +215,7 @@ and apps
  </section>
   </Layout>
 )
+     }
+    }
+
+    export default IndexPage;
